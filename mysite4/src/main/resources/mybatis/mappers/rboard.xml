@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="rboard">
+
+	<select id="getList" resultType="RboardVo">
+		<![CDATA[
+			select			r.no,
+            				user_no userNo,
+            				title,
+            				content,
+            				hit,
+            				to_char(reg_date, 'YYYY-MM-DD HH24:MI:SS') regDate,
+            				u.name userName,
+            				group_no groupNo,
+            				order_no orderNo,
+            				depth
+			from        	users u, rboard r
+			where      		u.no= r.user_no
+			order by    	groupNo desc, orderNo asc, depth desc
+		]]>
+	</select>
+	
+	
+	<select id="getPost" parameterType="RboardVo" resultType="RboardVo">
+		<![CDATA[
+			select			r.no,
+            				user_no userNo,
+            				title,
+            				content,
+            				hit,
+            				to_char(reg_date, 'YYYY-MM-DD HH24:MI:SS') regDate,
+            				u.name userName,
+            				group_no groupNo,
+            				order_no orderNo,
+            				depth
+			from        	users u, rboard r
+			where      		u.no= r.user_no
+			and				r.no= #{no}
+		]]>
+	</select>
+	
+	
+	<update id="read" parameterType="RboardVo">
+		<![CDATA[
+			update			rboard 
+			set     		hit= hit+1
+			where    		no= #{no}
+		]]>
+	</update>
+	
+	
+	<update id="modify" parameterType="RboardVo">
+		<![CDATA[
+			update			rboard
+			set      		title= #{title},
+         					content= #{content} 
+			where    		no= #{no}
+		]]>
+	</update>
+	
+	
+	<delete id="delete" parameterType="RboardVo">
+		<![CDATA[
+			delete from		rboard 
+			where			no= #{no} 
+		]]>
+	</delete>
+	
+	
+	<insert id="write" parameterType="RboardVo">
+		<![CDATA[
+			insert into rboard
+			values		(seq_rboard_no.nextval, #{userNo}, #{title}, #{content}, 0, sysdate, seq_group_no.nextval, 1, 0)
+		]]>
+	</insert>
+	
+	
+	<insert id="reply" parameterType="RboardVo">
+		<![CDATA[
+			insert into rboard
+			values		(seq_rboard_no.nextval, #{userNo}, #{title}, #{content}, 0, sysdate, #{groupNo}, #{orderNo}+1, #{depth}+1)
+		]]>
+	</insert>
+	
+	
+	<update id="arrange" parameterType="RboardVo">
+		<![CDATA[
+			update			rboard
+			set 			order_no = order_no +3
+			where			group_no = #{groupNo}
+			and 			order_no > #{orderNo}	
+		]]>
+	</update>
+	
+	
+</mapper>
